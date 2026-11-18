@@ -2,6 +2,8 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'Punto de Venta';
+    // Longitud del PIN de los cajeros.
+  static const int pinLength = 4;
 
   // Código de barras: hasta este número de dígitos se muestra completo;
   // si tiene más, se muestra en una caja deslizable.

@@ -3,8 +3,8 @@
 Sistema de Punto de Venta (POS) para tablets, desarrollado como proyecto
 universitario con Flutter y Supabase.
 
-> **Estado:** en desarrollo. Por ahora está implementada la interfaz principal;
-> la lógica y la conexión con el backend se agregan por etapas.
+> **Estado:** en desarrollo. Ya cuenta con la interfaz principal y la conexión con Supabase
+> para autenticación, perfiles de cajero y apertura de turno; el resto de módulos se agregan por etapas.
 
 ## Funcionalidades
 
@@ -14,10 +14,11 @@ Implementado:
       Total / Pago / Cambio con teclado numérico y botón de cobrar
 - [x] Diseño adaptable a distintos tamaños de pantalla (SafeArea y layout
       compacto/amplio)
+- [x] Login de administrador (Google / Email)
+- [x] Cambio rápido de turno para cajeros (perfil + PIN de 4 dígitos)
+- [x] Apertura de turno con registro de saldo inicial en caja
 
 Pendiente:
-- [ ] Login de administrador (Google / Email)
-- [ ] Cambio rápido de turno para cajeros (perfil + PIN de 4 dígitos)
 - [ ] Catálogo de productos desde Supabase
 - [ ] Carrito activo guardado localmente (SharedPreferences)
 - [ ] Cobro, guardado de la venta y ticket digital en PDF
@@ -34,17 +35,6 @@ Pendiente:
 - SharedPreferences (carrito local)
 - pdf y csv (exportación)
 - fl_chart (gráficas)
-
-## Cómo ejecutar
-
-Requisitos: Flutter SDK instalado.
-
-```bash
-git clone https://github.com/TU_USUARIO/TU_REPO.git
-cd TU_REPO
-flutter pub get
-flutter run
-```
 
 Se recomienda probar en una tablet o emulador de tablet en horizontal.
 

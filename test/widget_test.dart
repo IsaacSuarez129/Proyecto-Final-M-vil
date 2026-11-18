@@ -1,13 +1,9 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pvm/app.dart';
+import 'package:pvm/core/theme/app_theme.dart';
+import 'package:pvm/features/auth/domain/entities/profile.dart';
+import 'package:pvm/features/cash_register/domain/entities/shift.dart';
+import 'package:pvm/features/checkout/presentation/screens/pos_home_screen.dart';
 
 void main() {
   testWidgets('Muestra la pantalla principal del POS', (tester) async {
@@ -16,9 +12,18 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const PosApp());
+    final shift = Shift(
+      id: 'test',
+      profile: const Profile(id: '1', name: 'Admin', role: ProfileRole.admin),
+      openingAmount: 500,
+      openedAt: DateTime(2026, 11, 17),
+    );
 
-    expect(find.text('Botón 1'), findsOneWidget);
+    await tester.pumpWidget(
+      MaterialApp(theme: AppTheme.light, home: PosHomeScreen(shift: shift)),
+    );
+
+    expect(find.text('Cajeros'), findsOneWidget);
     expect(find.text('Cobrar'), findsOneWidget);
   });
 }
