@@ -5,7 +5,9 @@ class PosAction {
   const PosAction({required this.label, required this.onPressed});
 
   final String label;
-  final VoidCallback onPressed;
+
+  // Si es null, el botón se ve deshabilitado.
+  final VoidCallback? onPressed;
 }
 
 class ActionButtonsPanel extends StatelessWidget {
@@ -47,13 +49,21 @@ class ActionButtonsPanel extends StatelessWidget {
   Widget _cell(int index) {
     if (index >= actions.length) return const SizedBox.shrink();
     final action = actions[index];
+    final enabled = action.onPressed != null;
+    const fade = 0.45;
 
     return Material(
-      color: PosColors.actionButton,
-      elevation: 2,
+      color: enabled
+          ? PosColors.actionButton
+          : PosColors.actionButton.withValues(alpha: fade),
+      elevation: enabled ? 2 : 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: PosColors.actionButtonBorder),
+        side: BorderSide(
+          color: enabled
+              ? PosColors.actionButtonBorder
+              : PosColors.actionButtonBorder.withValues(alpha: fade),
+        ),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -66,10 +76,12 @@ class ActionButtonsPanel extends StatelessWidget {
               child: Text(
                 action.label,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: PosColors.actionButtonText,
+                  color: enabled
+                      ? PosColors.actionButtonText
+                      : PosColors.actionButtonText.withValues(alpha: fade),
                 ),
               ),
             ),

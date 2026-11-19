@@ -3,38 +3,98 @@ import 'package:pvm/core/utils/responsive.dart';
 import 'package:pvm/features/auth/presentation/screens/cashiers_screen.dart';
 import 'package:pvm/features/auth/presentation/widgets/profile_avatar.dart';
 import 'package:pvm/features/cash_register/domain/entities/shift.dart';
+import 'package:pvm/features/catalog/domain/entities/product.dart';
+import 'package:pvm/features/catalog/presentation/widgets/catalog_dialog.dart';
 import 'package:pvm/features/checkout/domain/entities/cart_item.dart';
 import 'package:pvm/features/checkout/presentation/widgets/action_buttons_panel.dart';
 import 'package:pvm/features/checkout/presentation/widgets/payment_panel.dart';
 import 'package:pvm/features/checkout/presentation/widgets/product_list_panel.dart';
 
-class PosHomeScreen extends StatelessWidget {
+class PosHomeScreen extends StatefulWidget {
   const PosHomeScreen({super.key, required this.shift});
 
   // Turno abierto: define quién atiende y con cuánto abrió.
   final Shift shift;
 
-  // TEMPORAL: productos de ejemplo para ver el diseño.
-  static const List<CartItem> _demoItems = [
-    CartItem(name: 'Coca-Cola 600 ml', barcode: '750105', price: 18.50),
-    CartItem(name: 'Galletas Marías', barcode: '7501000123456', price: 24),
-    CartItem(
-      name: 'Aceite comestible vegetal de canola botella familiar 946 ml',
-      barcode: '7501234567890',
-      price: 52.90,
-    ),
-    CartItem(name: 'Pan', barcode: '1234', price: 3.5),
-  ];
+  @override
+  State<PosHomeScreen> createState() => _PosHomeScreenState();
+}
 
-  // El botón 1 abre la gestión de cajeros (solo administrador);
-  // los demás se definen después.
+class _PosHomeScreenState extends State<PosHomeScreen> {
+  final List<CartItem> _items = [];
+
+  void _addProduct(Product product) {
+    setState(() {
+      final index = _items.indexWhere((item) => item.productId == product.id);
+      if (index != -1) {
+        final current = _items[index];
+        _items[index] = current.copyWith(quantity: current.quantity + 1);
+      } else {
+        _items.add(
+          CartItem(
+            productId: product.id,
+            name: product.name,
+            barcode: product.code,
+            price: product.price,
+          ),
+        );
+      }
+    });
+  }
+
+  void _incrementItem(CartItem target) {
+    setState(() {
+      final index = _items.indexWhere(
+        (item) => item.productId == target.productId,
+      );
+      if (index == -1) return;
+      final current = _items[index];
+      _items[index] = current.copyWith(quantity: current.quantity + 1);
+    });
+  }
+
+  void _decrementItem(CartItem target) {
+    setState(() {
+      final index = _items.indexWhere(
+        (item) => item.productId == target.productId,
+      );
+      if (index == -1) return;
+      final current = _items[index];
+      if (current.quantity <= 1) {
+        _items.removeAt(index);
+      } else {
+        _items[index] = current.copyWith(quantity: current.quantity - 1);
+      }
+    });
+  }
+
+  void _removeItem(CartItem target) {
+    setState(() {
+      _items.removeWhere((item) => item.productId == target.productId);
+    });
+  }
+
+  // Botón 1: gestión de cajeros (solo administrador). Botón 2: catálogo.
+  // Los demás se definen después.
   List<PosAction> _buildActions(BuildContext context) {
     return List.generate(6, (index) {
-      if (index == 0 && shift.profile.isAdmin) {
+      if (index == 0 && widget.shift.profile.isAdmin) {
         return PosAction(
           label: 'Cajeros',
           onPressed: () => Navigator.of(context).push(
             MaterialPageRoute<void>(builder: (context) => const CashiersScreen()),
+          ),
+        );
+      }
+      if (index == 1) {
+        return PosAction(
+          label: 'Productos',
+          onPressed: () => showDialog<void>(
+            context: context,
+            builder: (context) => CatalogDialog(
+              canManage: widget.shift.profile.isAdmin,
+              onAddProduct: _addProduct,
+            ),
           ),
         );
       }
@@ -44,10 +104,13 @@ class PosHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final total = _demoItems.fold<double>(0, (sum, item) => sum + item.price);
+        // Se suma en centavos (enteros) y se convierte a pesos solo para mostrar.
+    final totalCents = _items.fold<int>(0, (sum, item) => sum + item.subtotalCents);
+    final total = totalCents / 100;
     final actions = _buildActions(context);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -57,7 +120,7 @@ class PosHomeScreen extends StatelessWidget {
               padding: EdgeInsets.all(responsive.contentPadding),
               child: Column(
                 children: [
-                  _ShiftHeader(shift: shift),
+                  _ShiftHeader(shift: widget.shift),
                   SizedBox(height: responsive.gap),
                   Expanded(
                     child: responsive.isCompact
@@ -93,7 +156,14 @@ class PosHomeScreen extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Expanded(child: ProductListPanel(items: _demoItems)),
+        Expanded(
+          child: ProductListPanel(
+            items: _items,
+            onIncrementItem: _incrementItem,
+            onDecrementItem: _decrementItem,
+            onRemoveItem: _removeItem,
+          ),
+        ),
         SizedBox(width: responsive.gap),
         SizedBox(
           width: responsive.actionPanelWidth,
@@ -118,9 +188,14 @@ class PosHomeScreen extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          const SizedBox(
+          SizedBox(
             height: 300,
-            child: ProductListPanel(items: _demoItems),
+            child: ProductListPanel(
+              items: _items,
+              onIncrementItem: _incrementItem,
+              onDecrementItem: _decrementItem,
+              onRemoveItem: _removeItem,
+            ),
           ),
           SizedBox(height: responsive.gap),
           SizedBox(height: 160, child: ActionButtonsPanel(actions: actions)),

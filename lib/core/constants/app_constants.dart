@@ -2,12 +2,17 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'Punto de Venta';
-    // Longitud del PIN de los cajeros.
+
+  // Longitud del PIN de los cajeros.
   static const int pinLength = 4;
 
   // Código de barras: hasta este número de dígitos se muestra completo;
   // si tiene más, se muestra en una caja deslizable.
   static const int barcodeInlineMaxDigits = 4;
+
+  // Símbolo que activa la búsqueda en todo el catálogo
+  // (ignora el filtro activo).
+  static const String catalogSearchSymbol = '#';
 
   // Ancho (dp) por debajo del cual se usa el diseño compacto.
   static const double compactBreakpoint = 720;

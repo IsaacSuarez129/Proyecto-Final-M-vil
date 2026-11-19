@@ -3,9 +3,18 @@ import 'package:pvm/features/checkout/domain/entities/cart_item.dart';
 import 'package:pvm/features/checkout/presentation/widgets/product_list_item.dart';
 
 class ProductListPanel extends StatelessWidget {
-  const ProductListPanel({super.key, required this.items});
+  const ProductListPanel({
+    super.key,
+    required this.items,
+    required this.onIncrementItem,
+    required this.onDecrementItem,
+    required this.onRemoveItem,
+  });
 
   final List<CartItem> items;
+  final ValueChanged<CartItem> onIncrementItem;
+  final ValueChanged<CartItem> onDecrementItem;
+  final ValueChanged<CartItem> onRemoveItem;
 
   @override
   Widget build(BuildContext context) {
@@ -25,8 +34,15 @@ class ProductListPanel extends StatelessWidget {
             : ListView.separated(
                 itemCount: items.length,
                 separatorBuilder: (context, index) => const Divider(height: 1),
-                itemBuilder: (context, index) =>
-                    ProductListItem(item: items[index]),
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  return ProductListItem(
+                    item: item,
+                    onIncrement: () => onIncrementItem(item),
+                    onDecrement: () => onDecrementItem(item),
+                    onRemove: () => onRemoveItem(item),
+                  );
+                },
               ),
       ),
     );
