@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pvm/core/theme/app_theme.dart';
 import 'package:pvm/features/auth/domain/entities/profile.dart';
@@ -11,6 +12,7 @@ void main() {
     tester.view.physicalSize = const Size(1280, 800);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
+    SharedPreferences.setMockInitialValues({});
 
     final shift = Shift(
       id: 'test',

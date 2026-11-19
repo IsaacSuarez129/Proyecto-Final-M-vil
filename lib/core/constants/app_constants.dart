@@ -6,6 +6,9 @@ class AppConstants {
   // Longitud del PIN de los cajeros.
   static const int pinLength = 4;
 
+  // Máximo de tickets abiertos simultáneamente en pantalla.
+  static const int maxOpenTickets = 5;
+
   // Código de barras: hasta este número de dígitos se muestra completo;
   // si tiene más, se muestra en una caja deslizable.
   static const int barcodeInlineMaxDigits = 4;

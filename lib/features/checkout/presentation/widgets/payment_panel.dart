@@ -10,11 +10,13 @@ class PaymentPanel extends StatelessWidget {
     required this.change,
     required this.onKeyPressed,
     required this.onCharge,
+    this.isCharging = false,
   });
 
   final double total;
   final double payment;
   final double change;
+  final bool isCharging;
 
   // Recibe '0'-'9', '.' o 'backspace'.
   final ValueChanged<String> onKeyPressed;
@@ -69,7 +71,12 @@ class PaymentPanel extends StatelessWidget {
             children: [
               Expanded(flex: 3, child: _Keypad(onKeyPressed: onKeyPressed)),
               const SizedBox(width: _gap),
-              Expanded(child: _ChargeButton(onPressed: onCharge)),
+              Expanded(
+                child: _ChargeButton(
+                  onPressed: isCharging ? null : onCharge,
+                  isCharging: isCharging,
+                ),
+              ),
             ],
           ),
         ),
@@ -221,9 +228,10 @@ class _KeypadButton extends StatelessWidget {
 }
 
 class _ChargeButton extends StatelessWidget {
-  const _ChargeButton({required this.onPressed});
+  const _ChargeButton({required this.onPressed, required this.isCharging});
 
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
+  final bool isCharging;
 
   @override
   Widget build(BuildContext context) {
@@ -234,31 +242,33 @@ class _ChargeButton extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onPressed,
-        child: const Center(
+        child: Center(
           child: Padding(
-            padding: EdgeInsets.all(6),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.keyboard_return,
-                    size: 40,
-                    color: PosColors.chargeText,
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Cobrar',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: PosColors.chargeText,
+            padding: const EdgeInsets.all(6),
+            child: isCharging
+                ? const CircularProgressIndicator(color: PosColors.chargeText)
+                : const FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.keyboard_return,
+                          size: 40,
+                          color: PosColors.chargeText,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Cobrar',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: PosColors.chargeText,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
           ),
         ),
       ),

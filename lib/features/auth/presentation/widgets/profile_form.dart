@@ -38,22 +38,32 @@ class _ProfileFormState extends State<ProfileForm> {
     super.dispose();
   }
 
-  Future<void> _pickPhoto() async {
-    // La foto se reduce a 512 px para no subir imágenes pesadas.
-    final picked = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 512,
-      maxHeight: 512,
-      imageQuality: 80,
-    );
-    if (picked == null) return;
+  Future<void> _takePhoto() async {
+    try {
+      final picker = ImagePicker();
+      final XFile? photo = await picker.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.front,
+        maxWidth: 800,
+        imageQuality: 80,
+      );
 
-    final bytes = await picked.readAsBytes();
-    if (!mounted) return;
-    setState(() {
-      _photo = picked;
-      _photoBytes = bytes;
-    });
+      // Si el cajero cierra o cancela la cámara, conserva sus iniciales.
+      if (photo == null || !mounted) return;
+
+      final bytes = await photo.readAsBytes();
+      if (!mounted) return;
+
+      setState(() {
+        _photo = photo;
+        _photoBytes = bytes;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se pudo abrir la cámara.')),
+      );
+    }
   }
 
   Future<void> _submit() async {
@@ -94,7 +104,7 @@ class _ProfileFormState extends State<ProfileForm> {
             child: Column(
               children: [
                 GestureDetector(
-                  onTap: _isSaving ? null : _pickPhoto,
+                  onTap: _isSaving ? null : _takePhoto,
                   child: CircleAvatar(
                     radius: 44,
                     backgroundColor: scheme.secondaryContainer,
@@ -111,7 +121,7 @@ class _ProfileFormState extends State<ProfileForm> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Foto (opcional)',
+                  'Tomar foto (opcional)',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
